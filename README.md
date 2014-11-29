@@ -48,6 +48,6 @@ EclipseProjectClassLoader が書き換えるリソースのパスは、`.setting
 
 ## 参考
 
-  [http://chocolapod.sakura.ne.jp/blog/entry/83](開発者ブログ)
+  [開発者ブログ](http://chocolapod.sakura.ne.jp/blog/entry/83)
 
  
