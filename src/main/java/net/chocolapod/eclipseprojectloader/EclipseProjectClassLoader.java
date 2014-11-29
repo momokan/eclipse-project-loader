@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static net.chocolapod.eclipseprojectloader.ConfigKey.ResourcesDir;
+import static net.chocolapod.eclipseprojectloader.ConfigKey.TargetDir;
+
 /**
  *	Eclipse プロジェクトのリソースを、プロジェクトの再読み込みなしで随時読み込むための ClassLoader。
  *	Eclipse のデバッグコンフィギュレーションで、vm の実行時引数として "-Djava.system.class.loader=net.chocolapod.eclipseprojectloader.EclipseProjectClassLoader" を指定することで利用することができる。
@@ -28,11 +31,11 @@ import java.util.List;
  *	これにより、Eclipse プロジェクトの再読み込みなしで、随時 src/main/resources 下のリソースファイルにアクセスできるようになる。
  */
 public class EclipseProjectClassLoader extends URLClassLoader {
-	private static final String		CLASS_FILE_EXTENSION = ".class";
-	private static final String		RESOURCES_DIR = "src/main/resources/";
-	private static final String		TARGET_DIR = "target/classes/";
 	private static final String		SYSTEM_PROPERTY_KEY_CLASSPATH = "java.class.path";
-
+	private static final String		CLASS_FILE_EXTENSION = ".class";
+	
+	private EclipseProjectConfig	config = EclipseProjectConfig.load();
+	
 	public EclipseProjectClassLoader() {
 		super(getClasspathUrls());
 	}
@@ -45,12 +48,12 @@ public class EclipseProjectClassLoader extends URLClassLoader {
     public URL getResource(String name) {
 		//	通常の方法でリソースを探す
 		URL	url = super.getResource(name);
-
+		
 		if (url != null) {
 			try {
 				String		urlString = url.toString();
-				String		reousrcesUrl = new File(RESOURCES_DIR).toURI().toURL().toString();
-				String		targetUrl = new File(TARGET_DIR).toURI().toURL().toString();
+				String		reousrcesUrl = asDirectoryPath(new File(config.get(ResourcesDir)).toURI().toURL().toString());
+				String		targetUrl = asDirectoryPath(new File(config.get(TargetDir)).toURI().toURL().toString());
 				
 				//	ターゲットディレクトリ下のクラスファイル以外のリソースは、かわりにリソースディレクトリ下から読み込む
 				if (urlString.startsWith(targetUrl) && (!urlString.endsWith(CLASS_FILE_EXTENSION))) {
@@ -59,7 +62,7 @@ public class EclipseProjectClassLoader extends URLClassLoader {
 					path = reousrcesUrl + path;
 					
 					url = new URI(path).toURL();
-					System.err.println(urlString);
+					System.err.println(url.toString());
 				}
 			} catch (MalformedURLException | URISyntaxException e) {
 				//	リソースディレクトリ内にリソースがなければ、存在しないものとして扱う
@@ -71,6 +74,13 @@ public class EclipseProjectClassLoader extends URLClassLoader {
 
 		return url;
     }
+	
+	private String asDirectoryPath(String path) {
+		if (!path.endsWith("/")) {
+			path += "/";
+		}
+		return path;
+	}
 
 	/**
 	 *	システムに設定されている Classpath を URL 配列に変換して返す
