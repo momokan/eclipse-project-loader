@@ -13,7 +13,7 @@ EclipseProjectClassLoader は、発見した Java クラスファイル以外の
 
 Maven プロジェクトでの利用方法は以下の通り。
 
-    $ git clone https://github.com/momokan/eclipse-project-loader.git
+    $ git clone -b ver0.1 https://github.com/momokan/eclipse-project-loader.git
     $ cd eclipse-project-loader
     $ mvn clean install
 
