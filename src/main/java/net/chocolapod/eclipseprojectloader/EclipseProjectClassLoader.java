@@ -70,7 +70,7 @@ public class EclipseProjectClassLoader extends URLClassLoader {
 					path = reousrcesUrl + path;
 					
 					url = new URI(path).toURL();
-					System.err.println(url.toString());
+//					System.err.println(url.toString());
 				}
 			} catch (MalformedURLException | URISyntaxException e) {
 				//	リソースディレクトリ内にリソースがなければ、存在しないものとして扱う
