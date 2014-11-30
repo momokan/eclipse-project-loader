@@ -56,8 +56,20 @@ public class EclipseProjectClassLoader extends URLClassLoader {
     public URL getResource(String name) {
 		//	通常の方法でリソースを探す
 		URL	url = super.getResource(name);
-		
-		if (url != null) {
+
+		if (url == null) {
+			//	リソースが存在しなかった場合、リソースディレクトリに存在するか確認する
+			File	resource = new File(asDirectoryPath(config.get(ResourcesDir)) + name);
+			
+			if (resource.exists()) {
+				try {
+					url = resource.toURI().toURL();
+				} catch (MalformedURLException e) {
+					url = null;
+				}
+			}
+		} else {
+			//	リソースが存在した場合、必要に応じてリソースのパスを切り替える
 			try {
 				String		urlString = url.toString();
 				String		reousrcesUrl = asDirectoryPath(new File(config.get(ResourcesDir)).toURI().toURL().toString());
